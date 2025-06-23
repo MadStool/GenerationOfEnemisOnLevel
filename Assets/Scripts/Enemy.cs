@@ -8,16 +8,20 @@ public class Enemy : MonoBehaviour
     private Rigidbody _rigidbody;
     private Vector3 _direction;
 
-    public void Setup(Vector3 direction, float speed)
+    private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        _direction = direction.normalized;
-        _speed = speed;
     }
 
     private void FixedUpdate()
     {
         if (_rigidbody != null)
-            _rigidbody.linearVelocity = _direction * _speed;
+            _rigidbody.velocity = _direction * _speed;
+    }
+
+    public void Setup(Vector3 direction, float speed)
+    {
+        _direction = direction.normalized;
+        _speed = speed;
     }
 }
