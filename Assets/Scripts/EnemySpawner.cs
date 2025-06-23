@@ -4,21 +4,32 @@ using Random = UnityEngine.Random;
 
 public class EnemySpawner : MonoBehaviour
 {
+    [Header("Settings")]
     [SerializeField] private Enemy _enemyPrefab;
-    [SerializeField] private SpawnPoint[] _spawnPoints;
     [SerializeField] private float _spawnInterval = 2f;
     [SerializeField] private float _enemySpeed = 3f;
+
+    [Header("Spawn Points")]
+    [SerializeField] private SpawnPoint[] _spawnPoints;
 
     private Coroutine _spawningCoroutine;
     private bool _isSpawning;
 
+    private void Initialize()
+    {
+        if (ValidateSpawnSettings())
+            StartSpawning();
+    }
+
+    private void OnEnable() => Initialize();
+    private void OnDisable() => StopSpawning();
+
     public void StartSpawning()
     {
-        if (_isSpawning || ValidateSpawnSettings() == false)
-            return;
+        if (_isSpawning) return;
 
         _isSpawning = true;
-        _spawningCoroutine = StartCoroutine(SpawnRoutine());
+        _spawningCoroutine = StartCoroutine(SpawnProcess());
     }
 
     public void StopSpawning()
@@ -29,17 +40,14 @@ public class EnemySpawner : MonoBehaviour
         _isSpawning = false;
 
         if (_spawningCoroutine != null)
-        {
             StopCoroutine(_spawningCoroutine);
-            _spawningCoroutine = null;
-        }
     }
 
     private bool ValidateSpawnSettings()
     {
         if (_enemyPrefab == null)
         {
-            Debug.LogError("Enemy prefab is not assigned!", this);
+            Debug.LogError("Enemy prefab missing!", this);
             return false;
         }
 
@@ -52,34 +60,21 @@ public class EnemySpawner : MonoBehaviour
         return true;
     }
 
-    private void Start() => StartSpawning();
-    private void OnDestroy() => StopSpawning();
-
-    private IEnumerator SpawnRoutine()
+    private IEnumerator SpawnProcess()
     {
         var wait = new WaitForSeconds(_spawnInterval);
 
         while (_isSpawning)
         {
             yield return wait;
-            SpawnEnemyAtRandomPoint();
+            CreateEnemyAtRandomPoint();
         }
     }
 
-    private void SpawnEnemyAtRandomPoint()
+    private void CreateEnemyAtRandomPoint()
     {
-        SpawnPoint randomPoint = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
-        SpawnEnemy(randomPoint);
-    }
-
-    private void SpawnEnemy(SpawnPoint spawnPoint)
-    {
-        Enemy enemy = Instantiate(
-            _enemyPrefab,
-            spawnPoint.transform.position,
-            Quaternion.identity
-        );
-
-        enemy.Initialize(spawnPoint.transform.forward, _enemySpeed);
+        SpawnPoint point = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
+        Enemy enemy = Instantiate(_enemyPrefab, point.transform.position, Quaternion.identity);
+        enemy.Setup(point.transform.forward, _enemySpeed);
     }
 }
