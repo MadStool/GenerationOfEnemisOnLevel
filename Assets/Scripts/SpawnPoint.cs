@@ -2,28 +2,26 @@ using UnityEngine;
 
 public class SpawnPoint : MonoBehaviour
 {
-    [SerializeField] private MonoBehaviour _enemyPrefab;
+    [SerializeField] private Enemy _enemyPrefab;
+    [SerializeField] private float _enemySpeed = 3f;
 
-    public IMovableEnemy SpawnEnemy()
+    public Enemy SpawnEnemy()
     {
-        MonoBehaviour enemyInstance = Instantiate(_enemyPrefab, transform.position, Quaternion.identity);
-
-        if (enemyInstance.TryGetComponent(out IMovableEnemy movableEnemy))
+        if (_enemyPrefab == null)
         {
-            movableEnemy.SetDirection(transform.forward);
-            return movableEnemy;
-        }
-        else
-        {
-            Debug.LogWarning("Enemy prefab doesn't have IMovableEnemy component!");
+            Debug.LogWarning("Enemy prefab is not assigned!", this);
             return null;
         }
+
+        Enemy enemy = Instantiate(_enemyPrefab, transform.position, Quaternion.identity);
+        enemy.Initialize(transform.forward, _enemySpeed);
+        return enemy;
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(transform.position, 0.5f);
-        Gizmos.DrawLine(transform.position, transform.position + transform.forward * 2);
+        Gizmos.DrawSphere(transform.position, 0.25f);
+        Gizmos.DrawLine(transform.position, transform.position + transform.forward);
     }
 }
