@@ -15,6 +15,7 @@ public class SpawnPoint : MonoBehaviour
 
         Enemy enemy = Instantiate(_enemyPrefab, transform.position, Quaternion.identity);
         enemy.Initialize(transform.forward, _enemySpeed);
+
         return enemy;
     }
 

@@ -10,9 +10,6 @@ public class EnemySpawner : MonoBehaviour
     private Coroutine _spawningCoroutine;
     private bool _isSpawning;
 
-    private void Start() => StartSpawning();
-    private void OnDestroy() => StopSpawning();
-
     public void StartSpawning()
     {
         if (_isSpawning || _spawnPoints == null || _spawnPoints.Length == 0)
@@ -27,13 +24,23 @@ public class EnemySpawner : MonoBehaviour
 
     public void StopSpawning()
     {
-        if (_isSpawning == false) 
+        if (_isSpawning == false)
             return;
 
         _isSpawning = false;
 
         if (_spawningCoroutine != null)
             StopCoroutine(_spawningCoroutine);
+    }
+
+    private void Start()
+    {
+        StartSpawning();
+    }
+
+    private void OnDestroy()
+    {
+        StopSpawning();
     }
 
     private IEnumerator SpawnRoutine()
